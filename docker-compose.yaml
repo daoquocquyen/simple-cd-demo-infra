@@ -1,0 +1,35 @@
+services:
+  jenkins:
+    build:
+      context: ./jenkins
+      dockerfile: Dockerfile
+    container_name: jenkins
+    ports:
+      - "8080:8080"
+    environment:
+      JAVA_OPTS: "-Djenkins.install.runSetupWizard=false"
+      CASC_JENKINS_CONFIG: "/var/jenkins_home/casc/jenkins.yaml"
+      ADMIN_USER: "admin"
+      ADMIN_PASS: "change_me"
+      GITHUB_PAT: "${GITHUB_PAT}"
+      PUBLIC_URL: "${PUBLIC_URL}"
+      DOCKERHUB_USERNAME: "${DOCKERHUB_USERNAME}"
+      DOCKERHUB_PASSWORD: "${DOCKERHUB_PASSWORD}"
+    volumes:
+      - jenkins-home:/var/jenkins_home
+      - ./jenkins/casc:/var/jenkins_home/casc:ro
+      - ./jenkins/init.groovy.d:/var/jenkins_home/init.groovy.d:ro
+      - ./jenkins/plugins.txt:/usr/share/jenkins/ref/plugins.txt:ro
+      - ./jenkins/jobs.groovy:/tmp/jobs.groovy:ro
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    extra_hosts:
+      # Argo CD is port forwarded to localhost:8443 on the host,
+      # the Jenkins container can reach it via host.docker.internal
+      # ARGOCD_SERVER: "https://host.docker.internal:8443"
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  jenkins-home:
+    name: jenkins-home

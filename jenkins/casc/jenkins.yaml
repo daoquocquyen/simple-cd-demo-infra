@@ -1,0 +1,78 @@
+jenkins:
+  systemMessage: "Bootstrapped by JCasC"
+  numExecutors: 3
+  views:
+    - list:
+        name: "00-all"
+    - list:
+        name: "01-dev"
+        includeRegex: "^(pingpong-promotion-dev|pingpong-verify-dev)$"
+    - list:
+        name: "02-qa"
+        includeRegex: "^(pingpong-promote-qa|pingpong-verify-qa)$"
+    - list:
+        name: "03-prod"
+        includeRegex: "^(pingpong-promote-prod|pingpong-verify-prod)$"
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "${ADMIN_USER}"
+          password: "${ADMIN_PASS}"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+security:
+  globalJobDslSecurityConfiguration:
+    useScriptSecurity: false
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: "gh-pat"
+              secret: "${GITHUB_PAT}"
+              description: "GitHub PAT"
+          - usernamePassword:
+              scope: GLOBAL
+              id: "dockerhub-creds"
+              username: "${DOCKERHUB_USERNAME}"
+              password: "${DOCKERHUB_PASSWORD}"
+              description: "Docker Hub credentials"
+
+unclassified:
+  location:
+    url: "${PUBLIC_URL}"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleOnOver
+
+jobs:
+  - script: |
+      job('seed-job') {
+        scm {
+            git {
+              remote { url('https://github.com/daoquocquyen/simple-cd-demo-infra.git') }
+              branches('*/main')
+            }
+          }
+        steps {
+          dsl {
+            external('jenkins/jobs.groovy')
+          }
+        }
+      }
+
+tool:
+  maven:
+    installations:
+      - name: "Maven 3.8.8"
+        home: "/opt/maven/apache-maven-3.8.8"
+  jdk:
+    installations:
+      - name: "JDK 17"
+        home: "/opt/java/openjdk"

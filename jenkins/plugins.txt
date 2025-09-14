@@ -1,0 +1,17 @@
+workflow-aggregator
+git
+github
+credentials-binding
+configuration-as-code
+junit
+warnings-ng
+job-dsl
+workflow-job
+startup-trigger-plugin
+blueocean
+ws-cleanup
+pipeline-build-step
+ansicolor
+docker-workflow
+pipeline-utility-steps
+generic-webhook-trigger
