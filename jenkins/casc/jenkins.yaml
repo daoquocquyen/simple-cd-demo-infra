@@ -3,7 +3,8 @@ jenkins:
   numExecutors: 3
   views:
     - list:
-        name: "00-all"
+        name: "00-misc"
+        includeRegex: "^(seed-job|pingpong-verify-dispatch)$"
     - list:
         name: "01-dev"
         includeRegex: "^(pingpong-promotion-dev|pingpong-verify-dev)$"
